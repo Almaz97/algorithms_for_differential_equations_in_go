@@ -1,0 +1,2 @@
+# algorithms_for_differential_equations_in_go
+Implementation of algorithms for solving differential equations in golang
