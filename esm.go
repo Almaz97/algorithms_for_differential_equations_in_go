@@ -2,11 +2,18 @@ package main
 
 import (
 	"fmt"
-	"math"
+
+	"github.com/Knetic/govaluate"
 )
 
-func f(x float64) float64 {
-	result := 0.04*math.Pow(x, 3) + math.Pow(x, 2) - 7*x - 7
+var function string
+
+func f(x float64) interface{} {
+	expression, _ := govaluate.NewEvaluableExpression(function)
+	parameters := make(map[string]interface{}, 8)
+	parameters["x"] = x
+	result, _ := expression.Evaluate(parameters)
+
 	return result
 }
 
@@ -19,7 +26,7 @@ func esmMin(x0 float64, h float64, kMax int) {
 	for k < kMax {
 		k++
 		x1 = x0 + h
-		if yf1 >= yf0 {
+		if yf1.(float64) >= yf0.(float64) {
 			x1 = x0
 			yf1 = yf0
 		} else {
@@ -45,7 +52,7 @@ func esmMax(x0 float64, h float64, kMax int) {
 	for k < kMax {
 		k++
 		x1 = x0 + h
-		if yf1 <= yf0 {
+		if yf1.(float64) <= yf0.(float64) {
 			x1 = x0
 			yf1 = yf0
 		} else {
@@ -63,13 +70,17 @@ func esmMax(x0 float64, h float64, kMax int) {
 }
 
 func main() {
+	fmt.Print("Enter function: ")
+	fmt.Scan(&function)
 	var x0 float64
 	var h float64
-	kMax := 6
+	var kMax int
 	fmt.Print("Enter x0: ")
 	fmt.Scanln(&x0)
 	fmt.Print("Enter h: ")
 	fmt.Scanln(&h)
+	fmt.Print("Enter kMax: ")
+	fmt.Scanln(&kMax)
 
 	esmMin(x0, h, kMax)
 	esmMax(x0, h, kMax)
