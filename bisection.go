@@ -1,24 +1,31 @@
-// 0.04 * x ** 3 + x ** 2 - 7 * x - 7, 4
-
 package main
 
 import (
 	"fmt"
 	"math"
 	"os"
+
+	"github.com/Knetic/govaluate"
 )
 
-func f(x float64) float64 {
-	result := 0.04*math.Pow(x, 3) + math.Pow(x, 2) - 7*x - 7
+var function string
+
+func f(x float64) interface{} {
+	expression, _ := govaluate.NewEvaluableExpression(function)
+	parameters := make(map[string]interface{}, 8)
+	parameters["x"] = x
+	result, _ := expression.Evaluate(parameters)
+
 	return result
 }
 
 func bisection(a float64, b float64, tol float64, kMax int) {
 	fmt.Println("\n\n\t\tBisection Search Method")
+
 	fa := f(a)
 	fb := f(b)
 
-	if math.Signbit(fa) == math.Signbit(fb) {
+	if math.Signbit(fa.(float64)) == math.Signbit(fb.(float64)) {
 		fmt.Println("Sign of f(a) and f(b) must be opposite! Check endpoints of the internal [a,b]")
 		os.Exit(1)
 	}
@@ -29,7 +36,7 @@ func bisection(a float64, b float64, tol float64, kMax int) {
 		m := a + (b-a)/2
 		fa = f(a)
 		fb = f(m)
-		if math.Signbit(fa) == math.Signbit(fb) {
+		if math.Signbit(fa.(float64)) == math.Signbit(fb.(float64)) {
 			a = m
 		} else {
 			b = m
@@ -43,7 +50,12 @@ func bisection(a float64, b float64, tol float64, kMax int) {
 	fmt.Println("F(b):", fb)
 	fmt.Println("K: ", k)
 }
+
 func main() {
+
+	fmt.Print("Enter function: ")
+	fmt.Scan(&function)
+
 	var a float64
 	var b float64
 	var tol float64
