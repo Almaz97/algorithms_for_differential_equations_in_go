@@ -3,88 +3,106 @@ package main
 import (
 	"fmt"
 	"math"
+
+	"github.com/Knetic/govaluate"
 )
 
-func f(x float64) float64 {
-	result := 0.04*math.Pow(x, 3) + math.Pow(x, 2) - 7*x - 7
+var function string
+
+func f(x float64) interface{} {
+	expression, _ := govaluate.NewEvaluableExpression(function)
+	parameters := make(map[string]interface{}, 8)
+	parameters["x"] = x
+	result, _ := expression.Evaluate(parameters)
+
 	return result
 }
 
-func goldenMin(a float64, b float64, tol float64, kMax int) {
-	fmt.Println("\n\t\tGolden Search Method to find the minimum")
-	r := (math.Sqrt(5.) - 1) / 2
-	x1 := a + (1-r)*(b-a)
-	f1 := f(x1)
-	x2 := a + r*(b-a)
-	f2 := f(x2)
+func pocketMin(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax int) {
+	fmt.Println("\n\t\tPocket Search Method to find the minimum")
+	x1 := x0 + h1
+	yf0 := f(x0)
+	yf1 := f(x1)
 	k := 0
 
 	for k < kMax {
 		k++
-		if f1 > f2 {
-			a = x1
-			x1 = x2
-			f1 = f2
-			x2 = a + r*(b-a)
-			f2 = f(x2)
+		if yf1.(float64) >= yf0.(float64) {
+			if math.Abs(h0) < tol/r {
+				h1 = h0
+				x1 = x0
+				yf1 = yf0
+			} else {
+				h1 = (-h0) / r
+				h0 = h1
+			}
 		} else {
-			b = x2
-			x2 = x1
-			f2 = f1
-			x1 = a + (1-r)*(b-a)
-			f1 = f(x1)
+			h1 = h0
+			x0 = x1
+			yf0 = yf1
+			x1 = x0 + h1
+			yf1 = f(x1)
 		}
 	}
 
-	fmt.Println("f1: ", f1)
 	fmt.Println("x1: ", x1)
+	fmt.Println("yf1: ", yf1)
 	fmt.Println("k: ", k)
-	fmt.Println("abs(b-a): ", math.Abs(b-a))
+	fmt.Println("h1: ", h1)
 }
 
-func goldenMax(a float64, b float64, tol float64, kMax int) {
-	fmt.Println("\n\n\t\tGolden Search Method to find the maximum")
-	r := (math.Sqrt(5.) - 1) / 2
-	x1 := a + (1-r)*(b-a)
-	f1 := f(x1)
-	x2 := a + r*(b-a)
-	f2 := f(x2)
+func pocketMax(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax int) {
+	fmt.Println("\n\n\t\tPocket Search Method to find the maximum")
+	x1 := x0 + h1
+	yf0 := f(x0)
+	yf1 := f(x1)
 	k := 0
 
 	for k < kMax {
 		k++
-		if f1 < f2 {
-			a = x1
-			x1 = x2
-			f1 = f2
-			x2 = a + r*(b-a)
-			f2 = f(x2)
+		if yf1.(float64) <= yf0.(float64) {
+			if math.Abs(h0) < tol/r {
+				h1 = h0
+				x1 = x0
+				yf1 = yf0
+			} else {
+				h1 = (-h0) / r
+				h0 = h1
+			}
 		} else {
-			b = x2
-			x2 = x1
-			f2 = f1
-			x1 = a + (1-r)*(b-a)
-			f1 = f(x1)
+			h1 = h0
+			x0 = x1
+			yf0 = yf1
+			x1 = x0 + h1
+			yf1 = f(x1)
 		}
 	}
 
-	fmt.Println("f1: ", f1)
 	fmt.Println("x1: ", x1)
+	fmt.Println("yf1: ", yf1)
 	fmt.Println("k: ", k)
-	fmt.Println("abs(b-a): ", math.Abs(b-a))
+	fmt.Println("h1: ", h1)
 }
 
 func main() {
-	var a float64
-	var b float64
+	fmt.Print("Enter function: ")
+	fmt.Scan(&function)
+	var h0 float64
+	var x0 float64
+	var r float64
 	var tol float64
-	kMax := 6
-	fmt.Print("Enter a: ")
-	fmt.Scanln(&a)
-	fmt.Print("Enter b: ")
-	fmt.Scanln(&b)
+	var kMax int
+	fmt.Print("Enter h0: ")
+	fmt.Scanln(&h0)
+	fmt.Print("Enter x0: ")
+	fmt.Scanln(&x0)
+	fmt.Print("Enter r: ")
+	fmt.Scanln(&r)
 	fmt.Print("Enter tol: ")
 	fmt.Scanln(&tol)
-	goldenMin(a, b, tol, kMax)
-	goldenMax(a, b, tol, kMax)
+	fmt.Print("Enter kMax: ")
+	fmt.Scanln(&kMax)
+	pocketMin(h0, h0, x0, r, tol, kMax)
+	pocketMax(h0, h0, x0, r, tol, kMax)
+
 }
