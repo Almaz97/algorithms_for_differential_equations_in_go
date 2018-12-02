@@ -3,10 +3,18 @@ package main
 import (
 	"fmt"
 	"math"
+
+	"github.com/Knetic/govaluate"
 )
 
-func f(x float64) float64 {
-	result := 0.04*math.Pow(x, 3) + math.Pow(x, 2) - 7*x - 7
+var function string
+
+func f(x float64) interface{} {
+	expression, _ := govaluate.NewEvaluableExpression(function)
+	parameters := make(map[string]interface{}, 8)
+	parameters["x"] = x
+	result, _ := expression.Evaluate(parameters)
+
 	return result
 }
 
@@ -19,8 +27,7 @@ func pocketMin(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax 
 
 	for k < kMax {
 		k++
-		if yf1 >= yf0 {
-			fmt.Println(true)
+		if yf1.(float64) >= yf0.(float64) {
 			if math.Abs(h0) < tol/r {
 				h1 = h0
 				x1 = x0
@@ -30,7 +37,6 @@ func pocketMin(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax 
 				h0 = h1
 			}
 		} else {
-			fmt.Println(false)
 			h1 = h0
 			x0 = x1
 			yf0 = yf1
@@ -54,8 +60,7 @@ func pocketMax(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax 
 
 	for k < kMax {
 		k++
-		if yf1 <= yf0 {
-			fmt.Println(true)
+		if yf1.(float64) <= yf0.(float64) {
 			if math.Abs(h0) < tol/r {
 				h1 = h0
 				x1 = x0
@@ -65,7 +70,6 @@ func pocketMax(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax 
 				h0 = h1
 			}
 		} else {
-			fmt.Println(false)
 			h1 = h0
 			x0 = x1
 			yf0 = yf1
@@ -81,11 +85,13 @@ func pocketMax(h0 float64, h1 float64, x0 float64, r float64, tol float64, kMax 
 }
 
 func main() {
+	fmt.Print("Enter function: ")
+	fmt.Scan(&function)
 	var h0 float64
 	var x0 float64
 	var r float64
 	var tol float64
-	kMax := 6
+	var kMax int
 	fmt.Print("Enter h0: ")
 	fmt.Scanln(&h0)
 	fmt.Print("Enter x0: ")
@@ -94,6 +100,8 @@ func main() {
 	fmt.Scanln(&r)
 	fmt.Print("Enter tol: ")
 	fmt.Scanln(&tol)
+	fmt.Print("Enter kMax: ")
+	fmt.Scanln(&kMax)
 	pocketMin(h0, h0, x0, r, tol, kMax)
 	pocketMax(h0, h0, x0, r, tol, kMax)
 
